@@ -59,6 +59,7 @@ When preparing a version bump or release, update all repository version sources 
 - root `package.json`
 - root `package-lock.json`
 - `distributions/opencode/package.json` when releasing `marionettist-pathway-opencode`
+- `distributions/pi/package.json` when releasing `marionettist-pathway-pi`
 
 Before publishing, verify that generated or staged release assets are current, including `distributions/opencode/README.md` and `distributions/opencode/templates/**` when the OpenCode pathway package is affected.
 
@@ -69,6 +70,8 @@ When changing CLI code, run the relevant Node command or smoke test.
 When changing self-bootstrap or OpenCode boundary logic, run:
 - `npm run smoke`
 - `npm run self:smoke`
+
+When changing the Pi pathway, also run `npm run pi:dist:check`, the Pi distribution tests, and `npm pack --dry-run ./distributions/pi`.
 
 When changing templates or skills, validate that:
 - no project-specific terms leaked into core assets

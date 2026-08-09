@@ -7,6 +7,7 @@ export const opencodeArtifactAdapter = "opencode";
 export const opencodeCommandSurfaceValues = new Set(["minimal", "standard", "advanced"]);
 export const opencodePermissionModeValues = new Set(["default", "moderate", "loose"]);
 export const opencodePluginSourceValues = new Set(["package", "local"]);
+export const piArtifactAdapter = "pi";
 const opencodeCommandSurfaceAliases = new Map([["full", "advanced"]]);
 
 export function manifestPath(projectPath) {
@@ -38,7 +39,7 @@ export function manifestFileMap(manifest) {
   return result;
 }
 
-export function buildManifest({ version, installedAt, previousManifest, operations, force = false, distributionMode = null, opencodePermissionMode = null, opencodePluginSource = null }) {
+export function buildManifest({ version, installedAt, previousManifest, operations, force = false, distributionMode = null, opencodePermissionMode = null, opencodePluginSource = null, piPackageSource = null }) {
   const previousInstalledAt = previousManifest?.installedAt ?? installedAt;
   const manifestDistributionMode = resolveManifestDistributionMode(previousManifest, distributionMode);
   const manifestOpencodePermissionMode = resolveManifestOpencodePermissionMode(previousManifest, opencodePermissionMode);
@@ -54,6 +55,7 @@ export function buildManifest({ version, installedAt, previousManifest, operatio
     ...(manifestDistributionMode ? { distributionMode: manifestDistributionMode } : {}),
     ...(manifestOpencodePermissionMode ? { opencodePermissionMode: manifestOpencodePermissionMode } : {}),
     ...(manifestOpencodePluginSource ? { opencodePluginSource: manifestOpencodePluginSource } : {}),
+    ...(piPackageSource ?? previousManifest?.piPackageSource ? { piPackageSource: piPackageSource ?? previousManifest.piPackageSource, piInstallScope: "project" } : {}),
     installedAt: previousInstalledAt,
     updatedAt: installedAt,
     managedFiles

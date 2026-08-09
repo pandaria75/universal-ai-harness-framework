@@ -59,8 +59,11 @@ async function buildExpectedFiles() {
 function transformContent(mapping, relative, content) {
   if (mapping.source === "plugin" && relative === "opencode-tasks.js") {
     return content
-      .replace('import path from "node:path";\n', 'import path from "node:path";\nimport { fileURLToPath } from "node:url";\n')
-      .replace('const prototypeSkillPath = ".opencode/pathway-skills";', 'const packageSkillPath = fileURLToPath(new URL("../pathway-skills", import.meta.url));')
+      .replace(
+        /import path from "node:path";(\r?\n)/u,
+        'import path from "node:path";$1import { fileURLToPath } from "node:url";$1',
+      )
+      .replace('const prototypeSkillPath = ".opencode/pathway-skills";', 'const packageSkillPath = fileURLToPath(new URL("../pathway-skills", import.meta.url)).split(path.sep).join("/");')
       .replace('const registerPackagedStandardSurface = false;', 'const registerPackagedStandardSurface = true;')
       .replaceAll('../agents/', '../templates/agents/')
       .replaceAll('../commands/', '../templates/commands/')

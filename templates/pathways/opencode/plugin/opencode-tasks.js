@@ -16,12 +16,12 @@ const builtInProfileDefaults = {
     agentOverrides: {}
   },
   review: {
-    default: "opencode-go/glm-5.1",
+    default: "deepseek/deepseek-v4-pro",
     temperature: 0,
     agentOverrides: {}
   },
   run: {
-    default: "opencode-go/deepseek-v4-flash",
+    default: "deepseek/deepseek-v4-flash",
     temperature: 0,
     agentOverrides: {}
   }

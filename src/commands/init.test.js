@@ -123,3 +123,22 @@ test("initCommand prints guide text only after a new marionettist language selec
     assert.deepEqual(logs, ["Marionettist will use English for Marionettist CLI guidance and agent replies."]);
   });
 });
+
+test("initCommand reconciles the Pi package only when --with-pi is selected", async (t) => {
+  await withTempProject(t, async (projectPath) => {
+    const calls = [];
+    const logs = [];
+    await initCommand(["--project", projectPath, "--auto", "--dry-run", "--with-pi"], {
+      buildPlan: async () => buildStubPlan(),
+      printPlan: () => {},
+      applyPlan: async () => {},
+      ensurePiProjectPackage: async (project, options) => {
+        calls.push({ project, options });
+        return { command: "pi install -l npm:marionettist-pathway-pi" };
+      },
+      log: (message) => logs.push(message)
+    });
+    assert.deepEqual(calls, [{ project: projectPath, options: { dryRun: true } }]);
+    assert(logs.includes("would run: pi install -l npm:marionettist-pathway-pi"));
+  });
+});

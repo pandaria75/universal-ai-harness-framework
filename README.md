@@ -6,7 +6,7 @@ Marionettist is a reusable, file-based workflow for safer AI-assisted developmen
 
 It gives AI agents and human teams a shared contract: where rules live, how task context is prepared, when coding may start, and where the agent must stop for approval.
 
-Marionettist currently remains focused on practical Agent Harness behavior. Its longer-term roadmap explores broader workflow families through real dogfooding projects such as Quill and isolated adapter experiments such as Pi; Quill MVP is not expected to depend on a Marionettist runtime, and shared-foundation extraction is a later evidence-driven decision.
+Marionettist currently remains focused on practical Agent Harness behavior, with optional OpenCode and project-local Pi pathway packages.
 
 ## What Marionettist Is
 
@@ -47,7 +47,8 @@ If you want the beginner-friendly workflow philosophy behind planning, gates, sl
 - **Task context before coding.** Agents prepare compact context packs instead of coding from chat alone.
 - **Safe sync.** `marionettist diff` previews changes; `marionettist sync` updates managed assets while preserving local work.
 - **Optional OpenCode support.** Slash commands and role agents improve ergonomics, but Marionettist does not depend on OpenCode.
-- **Model tiering.** OpenCode setups can use stronger models for planning, balanced models for coding/review, and cheaper reliable models for utility work.
+- **Project-local Pi support.** A Pi package installs skills, prompt workflows, and seven fixed Marionettist subagents without global activation.
+- **Shared model tiering.** OpenCode and Pi consume the same `.marionettist/model-profiles.yml` profiles.
 
 ## Install
 
@@ -72,7 +73,15 @@ marionettist init
 
 # Optional: install OpenCode commands and agents too
 marionettist init --with-opencode
+
+# Optional: initialize and install the project-local Pi pathway
+marionettist init --with-pi
+
+# Or install only the Pi package in an already initialized project
+pi install -l npm:marionettist-pathway-pi
 ```
+
+The Pi pathway is project-local only. A global `pi install npm:marionettist-pathway-pi` remains disabled and reports the correct `-l` installation command.
 
 After init, the target project gets files such as:
 
@@ -141,4 +150,5 @@ This repository is the **framework source**, not a normal target project.
 | [docs/DESIGN.md](./docs/DESIGN.md) | Tech leads, architects, framework evaluators | Design ideas, workflow philosophy, asset ownership, non-goals |
 | [docs/GUIDELINES.md](./docs/GUIDELINES.md) | Teams adopting Marionettist | Installation, daily usage, task tiers, gates, upgrades |
 | [docs/OPENCODE.md](./docs/OPENCODE.md) | Teams using OpenCode | Slash commands, agent roles, model profiles, permission posture |
+| [docs/PI.md](./docs/PI.md) | Teams using Pi | Project-local package, workflows, fixed subagents, shared model profiles |
 | [docs/develop/00-next-stage-vision.md](./docs/develop/00-next-stage-vision.md) | Maintainers planning future work | Quill dogfooding, Pi adapter exploration, delayed shared-foundation strategy |

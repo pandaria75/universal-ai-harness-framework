@@ -748,8 +748,8 @@ async function assertOpencodeInstall(projectPath) {
   assertIncludes(doctorOutput, "PASS  .opencode/commands/marionettist-incident.md frontmatter parsed");
   assertIncludes(doctorOutput, "PASS  OpenCode model [OK] .opencode/agents/marionettist-builder.md model openai/gpt-5.5 matches .marionettist/model-profiles.yml profile think.default.");
   assertIncludes(doctorOutput, "PASS  OpenCode model [OK] .opencode/agents/marionettist-coder.md model openai/gpt-5.4 matches .marionettist/model-profiles.yml profile build.default.");
-  assertIncludes(doctorOutput, "PASS  OpenCode model [OK] .opencode/agents/marionettist-reviewer.md model opencode-go/glm-5.1 matches .marionettist/model-profiles.yml profile review.default.");
-  assertIncludes(doctorOutput, "PASS  OpenCode model [OK] .opencode/agents/marionettist-validator.md model opencode-go/deepseek-v4-flash matches .marionettist/model-profiles.yml profile run.default.");
+  assertIncludes(doctorOutput, "PASS  OpenCode model [OK] .opencode/agents/marionettist-reviewer.md model deepseek/deepseek-v4-pro matches .marionettist/model-profiles.yml profile review.default.");
+  assertIncludes(doctorOutput, "PASS  OpenCode model [OK] .opencode/agents/marionettist-validator.md model deepseek/deepseek-v4-flash matches .marionettist/model-profiles.yml profile run.default.");
 
   await assertDoctorModelDriftStates(projectPath);
   await assertLegacyProfileFallbackRender(projectPath);
@@ -778,7 +778,7 @@ async function assertOpencodeInstall(projectPath) {
   const validatorContent = await fs.readFile(path.join(projectPath, ".opencode", "agents", "marionettist-validator.md"), "utf8");
   assertIncludes(validatorContent, "# Generic Validator Guidance");
   assertIncludes(validatorContent, "# Scheduled Validator Guidance");
-  assertIncludes(validatorContent, "model: opencode-go/deepseek-v4-flash");
+  assertIncludes(validatorContent, "model: deepseek/deepseek-v4-flash");
   assertExcludes(validatorContent, validatorSnippetPathText);
   assert(!(await pathExists(path.join(projectPath, ".opencode", "agents", "validators"))), "project must not contain installed validator snippet directory");
 
@@ -1159,8 +1159,8 @@ async function assertCanonicalProfileOverridesRender(projectPath) {
   const overriddenProfiles = originalProfiles
     .replace("default: \"openai/gpt-5.5\"", "default: \"smoke/think-override\"")
     .replace(/default: "(?:openai\/gpt-5\.4|openai\/gpt-5\.3-codex)"/, "default: \"smoke/build-override\"")
-    .replace("default: \"opencode-go/glm-5.1\"", "default: \"smoke/review-override\"")
-    .replace("default: \"opencode-go/deepseek-v4-flash\"", "default: \"smoke/run-override\"");
+    .replace("default: \"deepseek/deepseek-v4-pro\"", "default: \"smoke/review-override\"")
+    .replace("default: \"deepseek/deepseek-v4-flash\"", "default: \"smoke/run-override\"");
   assert(overriddenProfiles !== originalProfiles, "Expected canonical profile override fixture to change model defaults");
 
   try {
@@ -1244,8 +1244,8 @@ async function assertLegacyProfileFallbackRender(projectPath) {
     const legacyConfig = originalConfig
       .replace('default: "openai/gpt-5.5"', `default: "${legacyThink}"`)
       .replace(/default: "(?:openai\/gpt-5\.4|openai\/gpt-5\.3-codex)"/, `default: "${legacyBuild}"`)
-      .replace('default: "opencode-go/glm-5.1"', `default: "${legacyReview}"`)
-      .replace('default: "opencode-go/deepseek-v4-flash"', `default: "${legacyRun}"`);
+      .replace('default: "deepseek/deepseek-v4-pro"', `default: "${legacyReview}"`)
+      .replace('default: "deepseek/deepseek-v4-flash"', `default: "${legacyRun}"`);
     await fs.writeFile(configPath, legacyConfig, "utf8");
 
     const diffOutput = await harness("diff", "--project", projectPath, "--with-opencode");
@@ -1721,7 +1721,9 @@ function assert(condition, message) {
 }
 
 function assertIncludes(content, expected) {
-  assert(content.includes(expected), `Expected output to include: ${expected}\nActual output:\n${content}`);
+  const normalizedContent = String(content).replaceAll("\r\n", "\n");
+  const normalizedExpected = String(expected).replaceAll("\r\n", "\n");
+  assert(normalizedContent.includes(normalizedExpected), `Expected output to include: ${expected}\nActual output:\n${content}`);
 }
 
 function assertExcludes(content, unexpected) {

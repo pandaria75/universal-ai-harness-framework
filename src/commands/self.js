@@ -8,6 +8,7 @@ import { initCommand } from "./init.js";
 import { diffCommand } from "./diff.js";
 import { syncCommand } from "./sync.js";
 import { doctorCommand } from "./doctor.js";
+import { ensurePiProjectPackage } from "../core/pi-package.js";
 
 const selfProfileRelative = ".marionettist/self/README.md";
 const selfRuntimeRelative = ".marionettist-self/";
@@ -39,7 +40,7 @@ const selfPolicyEnd = "<!-- HARNESS_SELF_POLICY_END -->";
 const selfHelp = `Marionettist self-dogfooding commands
 
 Usage:
-  marionettist self init [--apply] [--with-opencode]
+  marionettist self init [--apply] [--with-opencode] [--with-pi]
   marionettist self doctor
   marionettist self test
 `;
@@ -209,7 +210,7 @@ const selfOpencodeContents = new Map([
   [".opencode/agents/marionettist-framework-reviewer.md", [
     "---",
     "description: Reviews marionettist framework changes for regressions and boundary contamination.",
-    "model: opencode-go/glm-5.1",
+    "model: deepseek/deepseek-v4-pro",
     "---",
     "",
     "# Marionettist Framework Reviewer",
@@ -272,6 +273,7 @@ async function selfInit(args) {
   printSelfPlan(operations, options.apply ? "write" : "dry-run");
 
   if (!options.apply) {
+    if (options.withPi) console.log("would run: pi install -l ./distributions/pi");
     console.log("note: use --apply to create or update self profile files");
     return;
   }
@@ -280,6 +282,10 @@ async function selfInit(args) {
     if (operation.action === "create" || operation.action === "update") {
       await writeText(path.join(frameworkRoot, operation.path), operation.content);
     }
+  }
+  if (options.withPi) {
+    const result = await ensurePiProjectPackage(frameworkRoot, { source: "./distributions/pi" });
+    console.log(`ran: ${result.command}`);
   }
 }
 
@@ -676,7 +682,7 @@ async function collectTextFiles(absolute, relative, files) {
 }
 
 function parseSelfArgs(args, { allowApply = false } = {}) {
-  const options = { apply: false, withOpencode: false, help: false };
+  const options = { apply: false, withOpencode: false, withPi: false, help: false };
   for (const arg of args) {
     if (arg === "--apply" && allowApply) {
       options.apply = true;
@@ -684,6 +690,10 @@ function parseSelfArgs(args, { allowApply = false } = {}) {
     }
     if (arg === "--with-opencode") {
       options.withOpencode = true;
+      continue;
+    }
+    if (arg === "--with-pi") {
+      options.withPi = true;
       continue;
     }
     if (arg === "--help" || arg === "-h") {
@@ -697,7 +707,7 @@ function parseSelfArgs(args, { allowApply = false } = {}) {
 }
 
 function ensureLine(content, line) {
-  const normalized = content.replace(/\r\n/g, "\n");
+  const normalized = content.replace(/\n/g, "\n");
   const lines = normalized.split("\n").filter((value, index, array) => index < array.length - 1 || value !== "");
   if (!lines.includes(line)) {
     lines.push(line);
@@ -750,7 +760,7 @@ async function buildSelfOpencodeMirrorEntries() {
 }
 
 function textEquals(left, right) {
-  return left !== null && left.replace(/\r\n/g, "\n") === right.replace(/\r\n/g, "\n");
+  return left !== null && left.replace(/\n/g, "\n") === right.replace(/\n/g, "\n");
 }
 
 function containsUnresolvedModelProfilePlaceholder(content) {

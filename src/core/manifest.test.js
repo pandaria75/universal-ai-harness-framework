@@ -68,3 +68,15 @@ test("getManagedFileHash prefers compatibility hash when hash and renderedHash d
     "managed-region-hash"
   );
 });
+
+test("buildManifest records project-only Pi package metadata", () => {
+  const manifest = buildManifest({
+    version: "1.0.0",
+    installedAt: "2026-08-09T00:00:00.000Z",
+    previousManifest: null,
+    operations: [],
+    piPackageSource: "npm:marionettist-pathway-pi"
+  });
+  assert.equal(manifest.piPackageSource, "npm:marionettist-pathway-pi");
+  assert.equal(manifest.piInstallScope, "project");
+});

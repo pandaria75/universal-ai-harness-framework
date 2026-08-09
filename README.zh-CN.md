@@ -45,7 +45,8 @@ AI 辅助开发常因简单原因失败：
 - **编码前先建任务上下文。** Agent 应准备紧凑的 context pack，而不是仅凭聊天记录就开始编码。
 - **安全同步。** `marionettist diff` 预览变更；`marionettist sync` 更新受管资产，同时保留本地内容。
 - **OpenCode 可选支持。** Slash commands 和角色 agent 改善体验，但 Marionettist 不依赖 OpenCode。
-- **模型分层。** OpenCode 部署可以为规划使用更强模型，为编码/review 使用均衡模型，为工具型任务使用更便宜的可靠模型。
+- **Pi 项目局部分发版。** Pi package 自动安装 skills、prompt workflows 和七个固定 Marionettist subagents，且不会全局启用。
+- **统一模型分层。** OpenCode 与 Pi 共用 `.marionettist/model-profiles.yml`。
 
 ## 安装
 
@@ -70,7 +71,15 @@ marionettist init
 
 # 可选：同时安装 OpenCode commands 和 agents
 marionettist init --with-opencode
+
+# 可选：初始化并安装项目局部 Pi pathway
+marionettist init --with-pi
+
+# 已初始化的项目也可以只安装 Pi package
+pi install -l npm:marionettist-pathway-pi
 ```
+
+Pi pathway 只支持项目局部安装。错误执行全局安装后，插件保持禁用并提示使用 `-l` 重新安装。
 
 初始化后，目标项目会得到以下文件：
 
@@ -139,3 +148,4 @@ marionettist doctor
 | [docs/DESIGN.zh-CN.md](./docs/DESIGN.zh-CN.md) | 技术负责人、架构师、框架评估者 | 设计思想、工作流哲学、资产所有权、非目标 |
 | [docs/GUIDELINES.zh-CN.md](./docs/GUIDELINES.zh-CN.md) | 采用 Marionettist 的团队 | 安装、日常使用、任务 tier、gate、升级 |
 | [docs/OPENCODE.zh-CN.md](./docs/OPENCODE.zh-CN.md) | 使用 OpenCode 的团队 | Slash commands、agent 角色、模型 profiles、权限姿态 |
+| [docs/PI.zh-CN.md](./docs/PI.zh-CN.md) | 使用 Pi 的团队 | 项目局部 package、workflows、固定 subagents、统一模型 profiles |

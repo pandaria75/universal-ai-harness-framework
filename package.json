@@ -9,6 +9,8 @@
   "scripts": {
     "opencode:dist": "node ./scripts/build-opencode-distribution.mjs",
     "opencode:dist:check": "node ./scripts/build-opencode-distribution.mjs --check",
+    "pi:dist": "node ./scripts/build-pi-distribution.mjs",
+    "pi:dist:check": "node ./scripts/build-pi-distribution.mjs --check",
     "smoke": "node ./scripts/smoke.mjs",
     "self:smoke": "node ./scripts/self-smoke.mjs"
   },

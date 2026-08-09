@@ -32,13 +32,13 @@ const builtInProfileDefaults = {
   },
   review: {
     description: "Reflective, cautious, nuanced review",
-    default: "opencode-go/glm-5.1",
+    default: "deepseek/deepseek-v4-pro",
     temperature: 0,
     agentOverrides: {}
   },
   run: {
     description: "Fast utility work such as indexing and validation",
-    default: "opencode-go/deepseek-v4-flash",
+    default: "deepseek/deepseek-v4-flash",
     temperature: 0,
     agentOverrides: {}
   }

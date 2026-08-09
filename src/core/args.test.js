@@ -25,3 +25,8 @@ test("parseCommonArgs rejects unsupported clear scope", () => {
     /Unsupported --scope value: manifest/
   );
 });
+
+test("parseCommonArgs accepts project-local Pi pathway selection", () => {
+  const options = parseCommonArgs(["--with-pi"]);
+  assert.equal(options.withPi, true);
+});

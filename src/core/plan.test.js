@@ -190,11 +190,11 @@ test("buildPlan rerenders OpenCode agents when resolved agent override values ch
       "    temperature: 0.1",
       "  review:",
       "    description: \"Reflective, cautious, nuanced review\"",
-      "    default: \"opencode-go/glm-5.1\"",
+      "    default: \"deepseek/deepseek-v4-pro\"",
       "    temperature: 0",
       "  run:",
       "    description: \"Fast utility work such as indexing and validation\"",
-      "    default: \"opencode-go/deepseek-v4-flash\"",
+      "    default: \"deepseek/deepseek-v4-flash\"",
       "    temperature: 0",
       "",
     ].join("\n"), "utf8");

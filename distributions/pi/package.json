@@ -1,0 +1,21 @@
+{
+  "name": "marionettist-pathway-pi",
+  "version": "0.3.2",
+  "type": "module",
+  "description": "Project-local Pi pathway package for Marionettist.",
+  "keywords": ["pi-package", "marionettist", "agent-skills"],
+  "main": "./index.js",
+  "files": ["README.md", "index.js", "extension/", "resources/"],
+  "pi": {
+    "extensions": ["./extension/index.ts"]
+  },
+  "exports": {
+    ".": "./index.js",
+    "./package.json": "./package.json"
+  },
+  "engines": { "node": ">=20" },
+  "peerDependencies": {
+    "@earendil-works/pi-coding-agent": "*",
+    "typebox": "*"
+  }
+}

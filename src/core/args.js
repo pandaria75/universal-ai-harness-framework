@@ -13,6 +13,7 @@ export function parseCommonArgs(args) {
     auto: false,
     scope: "all",
     withOpencode: null,
+    withPi: null,
     distributionMode: null,
     opencodeCommandSurface: null,
     opencodePermissionMode: null,
@@ -55,6 +56,11 @@ export function parseCommonArgs(args) {
 
     if (arg === "--with-opencode") {
       options.withOpencode = true;
+      continue;
+    }
+
+    if (arg === "--with-pi") {
+      options.withPi = true;
       continue;
     }
 

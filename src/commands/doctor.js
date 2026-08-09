@@ -6,6 +6,8 @@ import { validateOptionalGatePolicyDefaultMode } from "../core/gate-policy.js";
 import { validateOptionalDistributionMode, validateOptionalOpencodeCommandSurface, validateOptionalOpencodePermissionMode, validateOptionalOpencodePluginSource } from "../core/manifest.js";
 import { loadTierPolicyState, tierPolicySourceRelative } from "../core/tier-policy.js";
 import { parseSimpleYaml } from "../core/yaml.js";
+import { listPiModels, piPackageSource, readPiProjectInstall } from "../core/pi-package.js";
+import { loadModelProfiles } from "../core/model-profiles.js";
 
 const managedBlockStart = "<!-- marionettist-kit:start -->";
 const managedBlockEnd = "<!-- marionettist-kit:end -->";
@@ -53,6 +55,7 @@ export async function doctorCommand(args) {
   await checkTierPolicy(options.project, results);
   await checkAgents(options.project, results);
   const manifest = await checkManifest(options.project, results);
+  await checkPi(options.project, options, manifest, results);
   checkDistributionMode(manifest, projectConfig, results);
   checkGatePolicyDefaultMode(projectConfig, results);
   await checkPath(options.project, ".aiassistant/rules", "directory", ".aiassistant/rules exists", results);
@@ -70,6 +73,42 @@ export async function doctorCommand(args) {
 
   if (results.some((result) => result.level === "FAIL")) {
     process.exitCode = 1;
+  }
+}
+
+async function checkPi(projectPath, options, manifest, results) {
+  const expected = options.withPi === true || manifest?.piPackageSource === piPackageSource;
+  const install = await readPiProjectInstall(projectPath);
+  if (install.parseError) {
+    results.push(fail(`.pi/settings.json parse failed: ${install.parseError.message}`));
+    return;
+  }
+  if (!install.installed) {
+    results.push(expected
+      ? fail(`Pi project package missing; run pi install -l ${piPackageSource}`)
+      : warn("Pi project package not installed; optional Pi pathway not enabled"));
+    return;
+  }
+  results.push(pass(`Pi project package ${piPackageSource} is installed locally`));
+
+  let modelOutput;
+  try {
+    modelOutput = (await listPiModels(projectPath)).stdout;
+  } catch (error) {
+    results.push(fail(`Pi model discovery failed: ${error.message}`));
+    return;
+  }
+
+  const profiles = await loadModelProfiles(projectPath);
+  for (const profileName of requiredModelProfiles) {
+    const model = profiles?.[profileName]?.default;
+    if (!model) {
+      results.push(fail(`Pi model profile ${profileName}.default missing`));
+    } else if (!modelOutput.includes(model)) {
+      results.push(fail(`Pi model profile ${profileName}.default unavailable: ${model}`));
+    } else {
+      results.push(pass(`Pi model profile ${profileName}.default available: ${model}`));
+    }
   }
 }
 

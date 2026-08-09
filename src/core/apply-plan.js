@@ -48,6 +48,9 @@ export function printPlan(plan, options) {
     const suffix = plan.distributionModeState.legacyInference ? " (legacy inferred; manifest unchanged)" : "";
     console.log(`distribution mode: ${plan.distributionModeState.reportedValue}${suffix}`);
   }
+  if (plan.piState?.enabled) {
+    console.log(`pi pathway: ${plan.piState.source} (${plan.piState.scope})`);
+  }
 
   for (const operation of plan.operations) {
     console.log(`${printableAction(operation, options)}: ${operation.targetRelative}`);

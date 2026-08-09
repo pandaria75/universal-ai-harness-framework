@@ -3,6 +3,7 @@ import { parseCommonArgs } from "../core/args.js";
 import { applyPlan, printPlan } from "../core/apply-plan.js";
 import { buildPlan, readConfiguredMarionettistLanguage } from "../core/plan.js";
 import { getMarionettistLanguageGuideText, promptConfig, promptConflictStrategy, promptDistributionMode, promptOpencodeCommandSurface, promptOpencodePermissionMode, promptWithOpencode } from "./init-prompts.js";
+import { ensurePiProjectPackage } from "../core/pi-package.js";
 
 export async function initCommand(args, dependencies = {}) {
   const buildPlanImpl = dependencies.buildPlan ?? buildPlan;
@@ -108,6 +109,12 @@ export async function initCommand(args, dependencies = {}) {
   const plan = await buildPlanImpl(options.project, "init", finalOptions);
   printPlanImpl(plan, finalOptions);
   await applyPlanImpl(plan, finalOptions);
+
+  if (options.withPi) {
+    const ensurePiProjectPackageImpl = dependencies.ensurePiProjectPackage ?? ensurePiProjectPackage;
+    const result = await ensurePiProjectPackageImpl(options.project, { dryRun: options.dryRun });
+    log(`${options.dryRun ? "would run" : "ran"}: ${result.command}`);
+  }
 
   if (withOpencode) {
     log("note: project-level opencode pathway prototype is enabled via opencode.jsonc");

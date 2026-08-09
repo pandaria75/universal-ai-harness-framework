@@ -90,7 +90,7 @@ try {
   assertIncludes(selfOpencodeReadme, "Edit `templates/pathways/opencode/**` instead");
 
   const selfReviewer = await readRelative(".opencode/agents/marionettist-framework-reviewer.md");
-  assertIncludes(selfReviewer, "model: opencode-go/glm-5.1");
+  assertIncludes(selfReviewer, "model: deepseek/deepseek-v4-pro");
 
   const selfProfiles = parseSimpleYaml(await readRelative(".marionettist/model-profiles.yml"));
   const mirroredBuilder = await readRelative(".opencode/agents/marionettist-builder.md");

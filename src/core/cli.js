@@ -9,13 +9,13 @@ import { fileURLToPath } from "node:url";
 const help = `Marionettist
 
 Usage:
-  marionettist init [--project <path>] [--dry-run] [--force] [--auto] [--distribution-mode <embedded|hybrid|adapter>] [--with-opencode] [--opencode-command-surface <minimal|standard|advanced|full>]
-  marionettist sync [--project <path>] [--dry-run] [--force]
-  marionettist diff [--project <path>]
-  marionettist doctor [--project <path>]
+  marionettist init [--project <path>] [--dry-run] [--force] [--auto] [--distribution-mode <embedded|hybrid|adapter>] [--with-opencode] [--with-pi] [--opencode-command-surface <minimal|standard|advanced|full>]
+  marionettist sync [--project <path>] [--dry-run] [--force] [--with-pi]
+  marionettist diff [--project <path>] [--with-pi]
+  marionettist doctor [--project <path>] [--with-pi]
   marionettist clear [--project <path>] [--scope <all|opencode>] [--apply]
   marionettist uninstall [--project <path>] [--scope <all|opencode>] [--apply]
-  marionettist self init [--apply] [--with-opencode]
+  marionettist self init [--apply] [--with-opencode] [--with-pi]
   marionettist self doctor
   marionettist self test
   marionettist --help

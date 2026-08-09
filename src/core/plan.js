@@ -8,6 +8,7 @@ import { buildOpencodeAgentTemplateVariables, buildResolvedOpencodeAgentModelCon
 import { getOpencodePermissionPolicy } from "./opencode-permissions.js";
 import { renderWithMetadata, stableJsonStringify } from "./render.js";
 import { parseSimpleYaml } from "./yaml.js";
+import { piPackageSource } from "./pi-package.js";
 
 const coreTemplateTargets = new Map([
   ["AGENTS.md", "AGENTS.md"],
@@ -1192,6 +1193,11 @@ export async function buildPlan(projectPath, mode, options = {}) {
   }
 
   const previousByPath = manifestFileMap(previousManifest);
+  const piState = {
+    enabled: options.withPi === true || (options.withPi !== false && previousManifest?.piPackageSource === piPackageSource),
+    source: piPackageSource,
+    scope: "project"
+  };
   const operations = [];
   const marionettistLanguageState = await resolveMarionettistLanguageState(projectPath, options);
   const distributionModeState = await resolveDistributionModeState(projectPath, previousManifest, options, mode);
@@ -1245,7 +1251,8 @@ export async function buildPlan(projectPath, mode, options = {}) {
     force: options.force,
     distributionMode: distributionModeState.value,
     opencodePermissionMode: opencodePermissionModeState.permissionMode,
-    opencodePluginSource: opencodePluginSourceState.pluginSource
+    opencodePluginSource: opencodePluginSourceState.pluginSource,
+    piPackageSource: piState.enabled ? piPackageSource : null
   });
 
   operations.push({
@@ -1258,5 +1265,5 @@ export async function buildPlan(projectPath, mode, options = {}) {
     manifest
   });
 
-  return { version, previousManifest, manifest, operations, marionettistLanguageState, distributionModeState, opencodeCommandSurfaceState, opencodePermissionModeState, opencodePluginSourceState };
+  return { version, previousManifest, manifest, operations, marionettistLanguageState, distributionModeState, opencodeCommandSurfaceState, opencodePermissionModeState, opencodePluginSourceState, piState };
 }

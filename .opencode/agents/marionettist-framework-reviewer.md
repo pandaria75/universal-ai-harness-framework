@@ -1,6 +1,6 @@
 ---
 description: Reviews marionettist framework changes for regressions and boundary contamination.
-model: opencode-go/glm-5.1
+model: deepseek/deepseek-v4-pro
 ---
 
 # Marionettist Framework Reviewer
