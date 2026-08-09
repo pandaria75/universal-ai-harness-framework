@@ -9,6 +9,15 @@ const opencodeSourceRoot = path.join(repoRoot, "templates", "pathways", "opencod
 const skillsRoot = path.join(repoRoot, "skills");
 const distributionRoot = path.join(repoRoot, "distributions", "pi");
 const checkOnly = process.argv.includes("--check");
+const agentTools = {
+  "marionettist-builder": "read, grep, find, ls",
+  "marionettist-planner": "read, grep, find, ls",
+  "marionettist-coder": "read, edit, write, bash, grep, find, ls",
+  "marionettist-reviewer": "read, bash, grep, find, ls",
+  "marionettist-critic": "read, bash, grep, find, ls",
+  "marionettist-indexer": "read, grep, find, ls",
+  "marionettist-validator": "read, bash, grep, find, ls"
+};
 
 const expected = new Map();
 await addTree(path.join(piSourceRoot, "extension"), "extension");
@@ -36,28 +45,48 @@ async function addTree(sourceRoot, targetRoot) {
 
 async function addTransformedTree(sourceRoot, targetRoot, transform, include = () => true) {
   for (const [relative, content] of await collectFiles(sourceRoot)) {
-    if (include(relative)) expected.set(toPosix(path.join(targetRoot, relative)), transform(content));
+    if (include(relative)) expected.set(toPosix(path.join(targetRoot, relative)), transform(content, relative));
   }
 }
 
-function transformAgent(content) {
-  return content
-    .replace(/mode:\s*primary/gu, "mode: subagent")
+function transformAgent(content, relative) {
+  const name = path.basename(relative, ".md");
+  const tools = agentTools[name];
+  if (!tools) throw new Error(`Missing Pi subagent metadata for ${relative}`);
+
+  const transformed = content
+    .replace(/^mode:.*\r?\n/gmu, "")
+    .replace(/^model:.*\r?\n/gmu, "")
     .replace(/^temperature:.*\r?\n/gmu, "")
+    .replace(/^thinkingLevel:/gmu, "thinking:")
+    .replace(/^reasoning_effort:/gmu, "thinking:")
     .replace(/^permission:[\s\S]*?(?=^---$)/gmu, "")
     .replace(/^\{\{OPENCODE_PERMISSION_BLOCK_[A-Z_]+\}\}\r?\n/gmu, "")
     .replaceAll("OpenCode", "Pi")
     .replaceAll("opencode.permissionMode", "Pi tool permissions")
     .replaceAll(".opencode/", ".pi/")
-    .replace(/^Pi permission policy notes[\s\S]*?\{\{OPENCODE_PERMISSION_WARNINGS_MARKDOWN\}\}\r?\n?/gmu, "")
-    .replace(/model:\s*\{\{HARNESS_[A-Z_]+_MODEL\}\}/gu, "model: inherited-from-.marionettist/model-profiles.yml");
+    .replace(/^Your model field is rendered from .*\r?\n\r?\n/gmu, "")
+    .replace(/^Pi permission policy notes[\s\S]*?\{\{OPENCODE_PERMISSION_WARNINGS_MARKDOWN\}\}\r?\n?/gmu, "");
+  const extra = [
+    `name: ${name}`,
+    `tools: ${tools}`,
+    "systemPromptMode: replace",
+    "inheritProjectContext: true",
+    "inheritSkills: true",
+    `acceptanceRole: ${name === "marionettist-coder" ? "writer" : "read-only"}`,
+    ...(new Set(["marionettist-reviewer", "marionettist-critic", "marionettist-validator"]).has(name)
+      ? ["completionGuard: false"]
+      : [])
+  ];
+  return transformed.replace(/^(---\r?\n)/u, `$1${extra.join("\n")}\n`);
 }
 
 function transformPrompt(content) {
   return content
     .replace(/^agent:.*\r?\n/gmu, "")
     .replaceAll("OpenCode", "Pi")
-    .replaceAll("opencode.permissionMode", "Pi tool permissions");
+    .replaceAll("opencode.permissionMode", "Pi tool permissions")
+    .replace(/`(marionettist-(?:builder|planner|coder|reviewer|critic|indexer|validator))`/gu, '`subagent` with `agent: "$1"`');
 }
 
 async function computeDrift() {

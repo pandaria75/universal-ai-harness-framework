@@ -47,7 +47,7 @@ If you want the beginner-friendly workflow philosophy behind planning, gates, sl
 - **Task context before coding.** Agents prepare compact context packs instead of coding from chat alone.
 - **Safe sync.** `marionettist diff` previews changes; `marionettist sync` updates managed assets while preserving local work.
 - **Optional OpenCode support.** Slash commands and role agents improve ergonomics, but Marionettist does not depend on OpenCode.
-- **Project-local Pi support.** A Pi package installs skills, prompt workflows, and seven fixed Marionettist subagents without global activation.
+- **Project-local Pi support.** A Pi package installs skills, prompt workflows, seven default Marionettist agents, and `pi-subagents`-compatible project agents without global activation.
 - **Shared model tiering.** OpenCode and Pi consume the same `.marionettist/model-profiles.yml` profiles.
 
 ## Install
@@ -150,5 +150,5 @@ This repository is the **framework source**, not a normal target project.
 | [docs/DESIGN.md](./docs/DESIGN.md) | Tech leads, architects, framework evaluators | Design ideas, workflow philosophy, asset ownership, non-goals |
 | [docs/GUIDELINES.md](./docs/GUIDELINES.md) | Teams adopting Marionettist | Installation, daily usage, task tiers, gates, upgrades |
 | [docs/OPENCODE.md](./docs/OPENCODE.md) | Teams using OpenCode | Slash commands, agent roles, model profiles, permission posture |
-| [docs/PI.md](./docs/PI.md) | Teams using Pi | Project-local package, workflows, fixed subagents, shared model profiles |
+| [docs/PI.md](./docs/PI.md) | Teams using Pi | Project-local package, workflows, customizable subagents, shared model profiles |
 | [docs/develop/00-next-stage-vision.md](./docs/develop/00-next-stage-vision.md) | Maintainers planning future work | Quill dogfooding, Pi adapter exploration, delayed shared-foundation strategy |

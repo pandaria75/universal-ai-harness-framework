@@ -23,7 +23,7 @@ Incident-first rules:
 - Do not assume local reproduction is available.
 - Do not assume site, production, browser, device, packet-capture, or environment access.
 - Do not automatically capture terminal logs or any other evidence.
-- Use `marionettist-indexer` only for read-only repository, docs, rules, ownership, boundary, or suspected-file exploration when that helps organize the incident.
+- Use `subagent` with `agent: "marionettist-indexer"` only for read-only repository, docs, rules, ownership, boundary, or suspected-file exploration when that helps organize the incident.
 - Treat broad repairs without direct evidence, reproduction, or documented validation constraints as a stop condition unless the user explicitly approves the risk.
 
 Collect and organize only user-provided or explicitly supplied evidence:

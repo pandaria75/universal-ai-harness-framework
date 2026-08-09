@@ -3,7 +3,7 @@ description: Generate or update the current task context pack
 ---
 
 Use `context-pack-builder`.
-Use `marionettist-planner` first if the current slice, validation commands, or stop conditions are not clear enough.
+Use `subagent` with `agent: "marionettist-planner"` first if the current slice, validation commands, or stop conditions are not clear enough.
 
 Requirement source:
 $1

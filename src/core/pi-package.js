@@ -1,9 +1,19 @@
 import { spawn } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
+import { buildResolvedOpencodeAgentModelConfigs, loadModelProfiles } from "./model-profiles.js";
 
 export const piPackageName = "marionettist-pathway-pi";
 export const piPackageSource = `npm:${piPackageName}`;
+const piAgentModelBindings = [
+  ["marionettist-builder", "harness-builder"],
+  ["marionettist-planner", "harness-planner"],
+  ["marionettist-coder", "harness-coder"],
+  ["marionettist-reviewer", "harness-reviewer"],
+  ["marionettist-critic", "harness-critic"],
+  ["marionettist-indexer", "harness-indexer"],
+  ["marionettist-validator", "harness-validator"]
+];
 
 export async function readPiProjectInstall(projectPath) {
   const settingsPath = path.join(projectPath, ".pi", "settings.json");
@@ -22,7 +32,36 @@ export async function readPiProjectInstall(projectPath) {
 export async function ensurePiProjectPackage(projectPath, options = {}) {
   const source = options.source ?? piPackageSource;
   if (options.dryRun) return { command: `pi install -l ${source}`, skipped: true };
-  return runPi(["install", "-l", source], projectPath, options);
+  const result = await runPi(["install", "-l", source], projectPath, options);
+  await syncPiSubagentModelOverrides(projectPath);
+  return result;
+}
+
+export async function syncPiSubagentModelOverrides(projectPath) {
+  const settingsPath = path.join(projectPath, ".pi", "settings.json");
+  const settings = JSON.parse(await fs.readFile(settingsPath, "utf8"));
+  const profiles = await loadModelProfiles(projectPath);
+  const resolvedModels = buildResolvedOpencodeAgentModelConfigs(profiles);
+  const existingSubagents = isPlainObject(settings.subagents) ? settings.subagents : {};
+  const existingOverrides = isPlainObject(existingSubagents.agentOverrides)
+    ? existingSubagents.agentOverrides
+    : {};
+  const agentOverrides = { ...existingOverrides };
+
+  for (const [piAgentName, sharedAgentName] of piAgentModelBindings) {
+    const existing = isPlainObject(agentOverrides[piAgentName]) ? agentOverrides[piAgentName] : {};
+    agentOverrides[piAgentName] = {
+      ...existing,
+      model: resolvedModels[sharedAgentName].model
+    };
+  }
+
+  settings.subagents = {
+    ...existingSubagents,
+    agentOverrides
+  };
+  await fs.writeFile(settingsPath, `${JSON.stringify(settings, null, 2)}\n`, "utf8");
+  return { settingsPath, agentOverrides };
 }
 
 export async function listPiModels(projectPath, options = {}) {
@@ -41,6 +80,10 @@ function isPiPackageEntry(entry) {
     || (typeof source === "string" && source.startsWith(`${piPackageSource}@`))
     || normalized.endsWith("/distributions/pi")
     || normalized === "./distributions/pi";
+}
+
+function isPlainObject(value) {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
 }
 
 async function runPi(args, cwd, options = {}) {

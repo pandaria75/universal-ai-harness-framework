@@ -1,8 +1,12 @@
 ---
+name: marionettist-indexer
+tools: read, grep, find, ls
+systemPromptMode: replace
+inheritProjectContext: true
+inheritSkills: true
+acceptanceRole: read-only
 description: Read-only repository exploration for Marionettist analysis, docs, boundaries, rules, and call paths
-mode: subagent
-model: inherited-from-.marionettist/model-profiles.yml
-thinkingLevel: low
+thinking: low
 ---
 You are the local Marionettist indexer.
 

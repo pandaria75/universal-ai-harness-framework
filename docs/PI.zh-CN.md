@@ -1,6 +1,6 @@
 # Pi Pathway
 
-`marionettist-pathway-pi` 为 Pi 提供 Marionettist skills、prompt templates 和七个固定 subagent 角色。
+`marionettist-pathway-pi` 为 Pi 提供 Marionettist skills、prompt templates、七个默认 agents，以及标准 `pi-subagents` runtime。
 
 ## 项目局部安装
 
@@ -22,12 +22,28 @@ marionettist init --with-pi
 
 - Skills 从框架根目录 `skills/` 生成。
 - Prompt templates 提供 `/marionettist` 和各个聚焦 workflow wrapper。
-- `marionettist_subagent` 只接受 builder、planner、coder、reviewer、critic、indexer 和 validator。
-- 子 agent 使用隔离的 Pi 进程，并禁止递归委派。
+- 标准 `subagent` tool 会发现 builder、planner、coder、reviewer、critic、indexer 和 validator，它们以 `marionettist-*` package agents 的形式提供。
+- 项目中的 `.pi/agents/**/*.md` 会被递归发现；既可以增加任意 agent，也可以通过相同的 `name` 覆盖 package 默认 agent。
+- 调用方式遵循 `pi-subagents`，例如 `subagent(agent="marionettist-indexer", task="梳理认证流程")`。
+
+例如，目标项目可以增加 `.pi/agents/domain-expert.md`：
+
+```markdown
+---
+name: domain-expert
+description: Understands the project's domain rules and terminology.
+tools: read, grep, find, ls
+model: deepseek/deepseek-v4-pro
+---
+
+Study the relevant project context and answer with evidence from the repository.
+```
+
+主 agent 随后即可用 `agent: "domain-expert"` 调用 `subagent`，无需重新构建 package 或注册 extension。
 
 ## 统一配置
 
-Pi 与 OpenCode 共用 `.marionettist/model-profiles.yml`。Pi 不会静默替换不可用的模型 ID。使用以下命令检查 package scope 和模型可用性：
+Pi 与 OpenCode 共用 `.marionettist/model-profiles.yml`。执行 `marionettist init --with-pi` 或 `marionettist sync --with-pi` 时，Marionettist 会把解析后的模型写入 `.pi/settings.json` 的 `subagents.agentOverrides`，同时保留其他设置和每个 agent 的附加配置。只执行 `pi install` 时，package agents 会继承当前 Pi 模型；如需应用各角色的统一模型 profiles，请执行 `marionettist sync --with-pi`。Pi 不会静默替换不可用的模型 ID。使用以下命令检查 package scope 和模型可用性：
 
 ```bash
 marionettist doctor --with-pi
