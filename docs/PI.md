@@ -27,6 +27,8 @@ extension confirms that the nearest `.pi/settings.json` contains the package.
 - Prompt templates expose `/marionettist` and the focused Marionettist workflow wrappers.
 - The standard `subagent` tool discovers builder, planner, coder, reviewer,
   critic, indexer, and validator as `marionettist-*` package agents.
+- If `pi-subagents` is already installed at user or project scope, the pathway
+  reuses it and does not register a duplicate `subagent` or `subagent_wait`.
 - Project definitions in `.pi/agents/**/*.md` are discovered recursively. They
   can add arbitrary agents or override a package agent by using the same `name`.
 - Calls use the regular `pi-subagents` shape, for example

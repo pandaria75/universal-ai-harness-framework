@@ -19,3 +19,6 @@ Package agents inherit the active Pi model after direct installation. Running
 
 The extension intentionally keeps skills, prompts, and the `subagent` runtime
 disabled unless the package is present in the nearest project `.pi/settings.json`.
+
+If `pi-subagents` is already configured at the user or project scope, the
+pathway reuses that runtime rather than registering duplicate `subagent` tools.

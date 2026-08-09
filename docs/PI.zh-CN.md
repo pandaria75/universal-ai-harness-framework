@@ -23,6 +23,7 @@ marionettist init --with-pi
 - Skills 从框架根目录 `skills/` 生成。
 - Prompt templates 提供 `/marionettist` 和各个聚焦 workflow wrapper。
 - 标准 `subagent` tool 会发现 builder、planner、coder、reviewer、critic、indexer 和 validator，它们以 `marionettist-*` package agents 的形式提供。
+- 如果用户级或项目级已经安装 `pi-subagents`，pathway 会复用该 runtime，不会重复注册 `subagent` 或 `subagent_wait`。
 - 项目中的 `.pi/agents/**/*.md` 会被递归发现；既可以增加任意 agent，也可以通过相同的 `name` 覆盖 package 默认 agent。
 - 调用方式遵循 `pi-subagents`，例如 `subagent(agent="marionettist-indexer", task="梳理认证流程")`。
 

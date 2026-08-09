@@ -1,4 +1,5 @@
 import { readFile, stat } from "node:fs/promises";
+import { homedir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
@@ -22,17 +23,35 @@ export default async function marionettistPiPathway(pi: ExtensionAPI) {
     return;
   }
 
-  await piSubagents(pi);
+  const externalPiSubagents = await hasConfiguredPiSubagents(projectRoot);
+  if (!externalPiSubagents) await piSubagents(pi);
   pi.on("resources_discover", async () => ({
     skillPaths: [
       path.join(resourceRoot, "skills"),
-      path.join(piSubagentsRoot, "skills")
+      ...(externalPiSubagents ? [] : [path.join(piSubagentsRoot, "skills")])
     ],
     promptPaths: [
       path.join(resourceRoot, "prompts"),
-      path.join(piSubagentsRoot, "prompts")
+      ...(externalPiSubagents ? [] : [path.join(piSubagentsRoot, "prompts")])
     ]
   }));
+}
+
+async function hasConfiguredPiSubagents(projectRoot: string) {
+  const userAgentDir = process.env.PI_CODING_AGENT_DIR ?? path.join(homedir(), ".pi", "agent");
+  const settingsPaths = [
+    path.join(projectRoot, ".pi", "settings.json"),
+    path.join(userAgentDir, "settings.json")
+  ];
+  for (const settingsPath of settingsPaths) {
+    try {
+      const settings = JSON.parse(await readFile(settingsPath, "utf8"));
+      if (Array.isArray(settings?.packages) && settings.packages.some(isPiSubagentsPackage)) return true;
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException)?.code !== "ENOENT") continue;
+    }
+  }
+  return false;
 }
 
 async function findProjectLocalInstall(start: string) {
@@ -63,6 +82,19 @@ function isThisPackage(entry: unknown) {
     || source.startsWith(`npm:${packageName}@`)
     || normalized.endsWith("/distributions/pi")
     || normalized === "./distributions/pi";
+}
+
+function isPiSubagentsPackage(entry: unknown) {
+  const source = typeof entry === "string"
+    ? entry
+    : entry && typeof entry === "object" && "source" in entry
+      ? String((entry as { source: unknown }).source)
+      : "";
+  const normalized = source.replace(/\\/gu, "/");
+  return source === "pi-subagents"
+    || source === "npm:pi-subagents"
+    || source.startsWith("npm:pi-subagents@")
+    || normalized.endsWith("/pi-subagents");
 }
 
 async function hasGitBoundary(directory: string) {

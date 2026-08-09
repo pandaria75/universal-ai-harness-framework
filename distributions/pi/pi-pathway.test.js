@@ -41,11 +41,13 @@ test("Pi package agents leave model selection open to shared settings overrides"
   assert.doesNotMatch(reviewer, /thinkingLevel|reasoning_effort/u);
 });
 
-test("Pi extension enforces project-local activation and delegates discovery to pi-subagents", async () => {
+test("Pi extension enforces project-local activation and avoids duplicate pi-subagents registration", async () => {
   const extension = await fs.readFile(path.join(root, "extension", "index.ts"), "utf8");
   assert.match(extension, /\.pi["', ]+settings\.json/u);
   assert.match(extension, /pi install -l npm:/u);
   assert.match(extension, /import piSubagents from "pi-subagents"/u);
+  assert.match(extension, /hasConfiguredPiSubagents/u);
+  assert.match(extension, /if \(!externalPiSubagents\) await piSubagents\(pi\)/u);
   assert.match(extension, /await piSubagents\(pi\)/u);
   assert.doesNotMatch(extension, /marionettist_subagent/u);
 });

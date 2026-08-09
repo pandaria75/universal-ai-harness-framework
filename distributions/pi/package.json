@@ -1,6 +1,6 @@
 {
   "name": "marionettist-pathway-pi",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "type": "module",
   "description": "Project-local Pi pathway package for Marionettist.",
   "keywords": ["pi-package", "marionettist", "agent-skills"],
