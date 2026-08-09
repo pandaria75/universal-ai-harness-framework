@@ -15,10 +15,11 @@ test("Pi package exposes its guarded extension and package agents", async () => 
     subagents: { agents: ["./resources/agents"] }
   });
   assert.equal(pkg.dependencies["pi-subagents"], "0.45.0");
+  assert.equal(pkg.dependencies.yaml, "2.8.3");
   assert.equal(pkg.pi.skills, undefined);
   assert.equal(pkg.pi.prompts, undefined);
 });
-test("Pi distribution contains seven roles, workflows, and shared skills", async () => {
+test("Pi distribution contains seven roles, parent-builder workflow, and shared skills", async () => {
   for (const role of roles) {
     const content = await fs.readFile(path.join(root, "resources", "agents", `marionettist-${role}.md`), "utf8");
     assert.match(content, /description:/u);
@@ -26,8 +27,7 @@ test("Pi distribution contains seven roles, workflows, and shared skills", async
     assert.match(content, /tools:/u);
     assert.doesNotMatch(content, /^model:/mu);
   }
-  const mainPrompt = await fs.readFile(path.join(root, "resources", "prompts", "marionettist.md"), "utf8");
-  assert.match(mainPrompt, /\$ARGUMENTS/u);
+  await assert.rejects(fs.access(path.join(root, "resources", "prompts", "marionettist.md")));
   const skill = await fs.readFile(path.join(root, "resources", "skills", "task-intake", "SKILL.md"), "utf8");
   assert.match(skill, /^---/u);
 });
@@ -49,6 +49,12 @@ test("Pi extension enforces project-local activation and avoids duplicate pi-sub
   assert.match(extension, /hasConfiguredPiSubagents/u);
   assert.match(extension, /if \(!externalPiSubagents\) await piSubagents\(pi\)/u);
   assert.match(extension, /await piSubagents\(pi\)/u);
+  assert.match(extension, /registerCommand\("marionettist"/u);
+  assert.match(extension, /before_agent_start/u);
+  assert.match(extension, /PRIMARY Marionettist builder/u);
+  assert.match(extension, /marionettist-exit/u);
+  assert.match(extension, /Delegating to one of those roles is an INTERNAL workflow step/u);
+  assert.match(extension, /resolveBuilderModel/u);
   assert.doesNotMatch(extension, /marionettist_subagent/u);
 });
 

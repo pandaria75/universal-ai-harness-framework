@@ -13,6 +13,14 @@ The package uses `pi-subagents` for dynamic agent discovery and orchestration.
 Its seven built-in Marionettist agents are package defaults; project definitions
 in `.pi/agents/**/*.md` can add new agents or override them by name.
 
+`/marionettist` is a parent-builder command, not a plain prompt template. It
+activates the complete Marionettist builder contract in the interactive parent
+session, resolves the builder model from `subagents.agentOverrides` when one is
+configured, and delegates only the six specialist roles. Internal analysis and
+same-slice coding/review/validation delegation does not require user approval;
+the builder pauses only at real Marionettist gates. The mode persists when a Pi
+session is resumed. Run `/marionettist-exit` to leave it explicitly.
+
 Package agents inherit the active Pi model after direct installation. Running
 `marionettist init --with-pi` or `marionettist sync --with-pi` maps the shared
 `.marionettist/model-profiles.yml` values into project `agentOverrides`.

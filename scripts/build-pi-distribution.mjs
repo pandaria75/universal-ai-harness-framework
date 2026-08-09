@@ -23,7 +23,7 @@ const expected = new Map();
 await addTree(path.join(piSourceRoot, "extension"), "extension");
 await addTree(skillsRoot, path.join("resources", "skills"));
 await addTransformedTree(path.join(opencodeSourceRoot, "agents"), path.join("resources", "agents"), transformAgent, (relative) => !relative.startsWith("validators/"));
-await addTransformedTree(path.join(opencodeSourceRoot, "commands"), path.join("resources", "prompts"), transformPrompt);
+await addTransformedTree(path.join(opencodeSourceRoot, "commands"), path.join("resources", "prompts"), transformPrompt, (relative) => relative !== "marionettist.md");
 expected.set("README.md", await fs.readFile(path.join(piSourceRoot, "README.md"), "utf8"));
 
 if (checkOnly) {
